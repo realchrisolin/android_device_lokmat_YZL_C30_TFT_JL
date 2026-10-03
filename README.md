@@ -67,6 +67,13 @@ inside a [twrp-14.1](https://github.com/minimal-manifest-twrp/platform_manifest_
 tree. The lunch target is `twrp_YZL_C30_TFT_JL-eng`. The image target is
 `vendorbootimage`, because that is where this layout puts the recovery ramdisk.
 
+The image that gets flashed is packed by `scripts/pack-debug-vendor-boot.sh`
+with the stock `vendor_boot` image as its argument, not by the make
+`vendorbootimage` target. That script keeps the stock platform ramdisk,
+overlays this tree's recovery root, and checks the result with
+`scripts/verify-vendor-boot.py`. Flash only the 64 MiB image. Do not flash
+the unpadded image.
+
 Decryption, touch, and the panel are configured from the running system and
 have not been tested in recovery. `TW_LOAD_VENDOR_MODULES` stays commented
 until the module files from this unit are in `prebuilt/modules/`.
