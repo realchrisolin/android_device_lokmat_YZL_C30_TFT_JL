@@ -56,6 +56,21 @@ if ! grep -a -q 'yzl-bootlog.sh' "$INIT_BIN"; then
 fi
 cp -a "$INIT_BIN" "$WORK/ramdisk/system/bin/init"
 chmod 755 "$WORK/ramdisk/system/bin/init"
+# Touch axis swap lives in libminuitwrp. The cpio snapshot predates it.
+MINUI_SO="$TREE/out/target/product/YZL_C30_TFT_JL/system/lib64/libminuitwrp.so"
+if ! grep -a -q 'YZL touch map: swap_xy flip_x keep-release' "$MINUI_SO"; then
+    echo "libminuitwrp has no touch-map marker: $MINUI_SO" >&2
+    exit 1
+fi
+cp -a "$MINUI_SO" "$WORK/ramdisk/system/lib64/libminuitwrp.so"
+# Screen timeout is compiled into the recovery binary via libguitwrp.
+RECOVERY_BIN="$TREE/out/target/product/YZL_C30_TFT_JL/recovery/root/system/bin/recovery"
+if ! grep -a -q 'Skipping screen timeout: TW_NO_SCREEN_TIMEOUT is set' "$RECOVERY_BIN"; then
+    echo "recovery has no screen-timeout disable: $RECOVERY_BIN" >&2
+    exit 1
+fi
+cp -a "$RECOVERY_BIN" "$WORK/ramdisk/system/bin/recovery"
+chmod 755 "$WORK/ramdisk/system/bin/recovery"
 # These are DT_NEEDED by recovery and libtar. They were linked from
 # out/system/lib64 but never installed into the recovery ramdisk, so the
 # binary exits before the UI. Copy the closure that readelf found missing.

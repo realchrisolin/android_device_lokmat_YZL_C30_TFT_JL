@@ -19,3 +19,16 @@ on init
     setprop sys.usb.ffs.aio_compat 0
     write /dev/kmsg "recovery: usb controller musb-hdrc"
     exec_background -- /system/bin/sh /system/bin/yzl-bootlog.sh
+
+# Sitronix lives on vendor_dlkm, which this ramdisk does not mount. A probe
+# around 8–18s of uptime answers. A probe minutes later reads chip id 0, and
+# finit_module can still return success with the module stuck loaded.
+# exec_background without a seclabel never starts: this policy has no domain
+# transition off a rootfs-labeled shell, and init refuses that even when
+# permissive. sleep runs as recovery. If that exec fails, insmod still runs.
+on property:init.svc.recovery=running
+    write /dev/kmsg "recovery: sttddi wait"
+    exec u:r:recovery:s0 -- /system/bin/sleep 6
+    write /dev/kmsg "recovery: sttddi insmod"
+    insmod /lib/modules/sttddi.ko
+    write /dev/kmsg "recovery: sttddi insmod requested"

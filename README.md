@@ -74,8 +74,10 @@ overlays this tree's recovery root, and checks the result with
 `scripts/verify-vendor-boot.py`. Flash only the 64 MiB image. Do not flash
 the unpadded image.
 
-Decryption, touch, and the panel are configured from the running system and
-have not been tested in recovery. `TW_LOAD_VENDOR_MODULES` stays commented
-until the module files from this unit are in `prebuilt/modules/`.
+`TW_LOAD_VENDOR_MODULES` stays commented. A missing module in that list
+aborts recovery boot, and the panel module is already in the platform
+ramdisk. Sitronix is copied into the recovery ramdisk and loaded from
+`init.recovery.mt6768.rc`. Touch was checked in recovery: a finger-up on
+Advanced changes the page. Decryption is still untested.
 
 Radio-identity partitions are not in `recovery.fstab`.

@@ -124,6 +124,14 @@ TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
 # placeholder and is not a size source.
 TW_THEME := portrait_mdpi
 TW_ROTATION := 270
+# Panel-native touch is X 0..479, Y 0..639. A left-to-right drag on the
+# glass changes Y and leaves X almost still. Rotation 270 paints logical X
+# along that Y axis, so the slider never tracked. Swap, then flip X.
+RECOVERY_TOUCHSCREEN_SWAP_XY := true
+RECOVERY_TOUCHSCREEN_FLIP_X := true
+# The idle timer blanks the DSI CRTC. Touch cannot turn it back on, and the
+# crown is KEY_BACK, which does not either.
+TW_NO_SCREEN_TIMEOUT := true
 TW_EXTRA_LANGUAGES := false
 TW_DEFAULT_LANGUAGE := en
 TARGET_SCREEN_WIDTH := 480
