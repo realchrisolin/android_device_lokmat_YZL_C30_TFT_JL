@@ -1,0 +1,5 @@
+prebuilt/dtb
+prebuilt/dtbo
+prebuilt/kernel
+prebuilt/modules/*.ko
+prebuilt/vendor_ramdisk_platform.lz4
