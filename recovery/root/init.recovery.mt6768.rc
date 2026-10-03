@@ -1,0 +1,21 @@
+# YZL_C30_TFT_JL recovery init.
+# The generic TWRP usb rc binds the gadget from sys.usb.controller.
+# Stock also writes musb cmode 2, but only on a non-debuggable build.
+# This recovery is eng. While SELinux was enforcing, that write was denied,
+# cmode stayed 1, and ADB enumerated. Once permissive, the write landed and
+# the gadget never came back. Do not write cmode.
+# yzl-bootlog.sh copies dmesg and logcat to /tmp and to the last 1 MiB of
+# expdb, so a logo hang can be read back after power-off.
+
+on early-init
+    write /dev/kmsg "recovery: YZL_C30_TFT_JL early-init"
+    # Permissive mode is set by init IsEnforcing() before this action, while
+    # init is still in the kernel domain. The init domain itself cannot
+    # setenforce on this policy.
+
+on init
+    setprop sys.usb.configfs 1
+    setprop sys.usb.controller musb-hdrc
+    setprop sys.usb.ffs.aio_compat 0
+    write /dev/kmsg "recovery: usb controller musb-hdrc"
+    exec_background -- /system/bin/sh /system/bin/yzl-bootlog.sh
