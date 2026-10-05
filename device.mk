@@ -2,7 +2,8 @@
 LOCAL_PATH := device/lokmat/YZL_C30_TFT_JL
 
 PRODUCT_PACKAGES += \
-    fastbootd
+    fastbootd \
+    android.hardware.boot-service.yzl
 
 # recovery/root/ is copied into the recovery ramdisk, which this layout
 # packs into vendor_boot.

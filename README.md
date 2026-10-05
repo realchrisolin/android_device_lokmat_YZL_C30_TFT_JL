@@ -71,8 +71,12 @@ The image that gets flashed is packed by `scripts/pack-debug-vendor-boot.sh`
 with the stock `vendor_boot` image as its argument, not by the make
 `vendorbootimage` target. That script keeps the stock platform ramdisk,
 overlays this tree's recovery root, and checks the result with
-`scripts/verify-vendor-boot.py`. Flash only the 64 MiB image. Do not flash
-the unpadded image.
+`scripts/verify-vendor-boot.py`. It also installs
+`android.hardware.boot-service.yzl` from the product out directory, so that
+recovery module has to be built before packing. The service reports slot A
+and does not write `misc`. `recovery.fstab` lists `/misc` so a boot-fastboot
+command is visible. The slot struct in that partition stays untouched.
+Flash only the 64 MiB image. Do not flash the unpadded image.
 
 `TW_LOAD_VENDOR_MODULES` stays commented. A missing module in that list
 aborts recovery boot, and the panel module is already in the platform

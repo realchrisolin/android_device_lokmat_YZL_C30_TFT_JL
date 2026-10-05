@@ -1,0 +1,13 @@
+<manifest version="1.0" type="framework">
+    <!-- This TWRP servicemanager ignores fragments unless this file exists.
+         Declare only boot control. A vendor manifest would also publish the
+         health fragment, and fastbootd waits forever for a declared health
+         HAL that is not running. -->
+    <hal format="aidl">
+        <name>android.hardware.boot</name>
+        <interface>
+            <name>IBootControl</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+</manifest>

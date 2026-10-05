@@ -41,3 +41,9 @@ system_dlkm /system_dlkm ext4 ro wait,slotselect,logical
 
 /devices/platform/11240000.mmc* auto auto defaults voldmanaged=sdcard1:auto,encryptable=userdata
 /devices/platform/mt_usb* auto vfat defaults voldmanaged=usbotg:auto
+
+# BCB. TWRP ignores a boot-fastboot command until this line exists.
+# The boot-control service does not read or write misc. Clearing the
+# command field touches the first 1088 bytes. The slot struct is later
+# in the partition and is left alone.
+/dev/block/by-name/misc /misc emmc defaults defaults

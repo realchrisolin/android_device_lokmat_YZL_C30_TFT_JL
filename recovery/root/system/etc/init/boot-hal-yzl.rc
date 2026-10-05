@@ -1,0 +1,11 @@
+# Start before fastbootd. interface aidl is the name WaitForService looks up.
+# recovery is the domain this ramdisk already uses. hal_bootctl_default is
+# not in this policy.
+on init
+    start boot-hal-yzl
+
+service boot-hal-yzl /system/bin/hw/android.hardware.boot-service.yzl
+    user root
+    group root
+    seclabel u:r:recovery:s0
+    interface aidl android.hardware.boot.IBootControl/default

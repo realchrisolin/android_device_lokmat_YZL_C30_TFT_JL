@@ -1,0 +1,20 @@
+// Recovery-only boot control for YZL_C30_TFT_JL.
+// Built with this TWRP's libraries. The vendor and stock recovery
+// binaries need Android 15 libc++, which this ramdisk does not have.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "android.hardware.boot-service.yzl",
+    relative_install_path: "hw",
+    recovery: true,
+    srcs: ["service.cpp"],
+    shared_libs: [
+        "android.hardware.boot-V1-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+    ],
+}

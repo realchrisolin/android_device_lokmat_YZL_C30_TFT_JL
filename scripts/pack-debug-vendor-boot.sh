@@ -71,6 +71,44 @@ if ! grep -a -q 'Skipping screen timeout: TW_NO_SCREEN_TIMEOUT is set' "$RECOVER
 fi
 cp -a "$RECOVERY_BIN" "$WORK/ramdisk/system/bin/recovery"
 chmod 755 "$WORK/ramdisk/system/bin/recovery"
+# Boot control HAL. The cpio snapshot does not contain it. fastbootd waits
+# for IBootControl/default before it opens a transport.
+BOOT_HAL="$TREE/out/target/product/YZL_C30_TFT_JL/recovery/root/system/bin/hw/android.hardware.boot-service.yzl"
+if ! grep -a -q 'YZL boot control: slot A only, no partition write' "$BOOT_HAL"; then
+    echo "boot hal missing slot-A marker: $BOOT_HAL" >&2
+    exit 1
+fi
+mkdir -p "$WORK/ramdisk/system/bin/hw"
+cp -a "$BOOT_HAL" "$WORK/ramdisk/system/bin/hw/android.hardware.boot-service.yzl"
+chmod 755 "$WORK/ramdisk/system/bin/hw/android.hardware.boot-service.yzl"
+if ! readelf -l "$BOOT_HAL" | grep -q 'interpreter: /system/bin/linker64'; then
+    echo "boot hal interpreter is not /system/bin/linker64" >&2
+    exit 1
+fi
+while read -r lib; do
+    if [[ ! -e "$WORK/ramdisk/system/lib64/$lib" ]]; then
+        echo "boot hal needs $lib and the ramdisk does not have it" >&2
+        exit 1
+    fi
+done < <(readelf -d "$BOOT_HAL" | awk -F'[][]' '/NEEDED/{print $2}')
+if [[ ! -L "$WORK/ramdisk/system/bin/bootstrap/linker64" ]]; then
+    echo "missing bootstrap linker symlink" >&2
+    exit 1
+fi
+if ! grep -q 'IBootControl' "$WORK/ramdisk/system/etc/vintf/manifest.xml"; then
+    echo "framework manifest does not declare IBootControl" >&2
+    exit 1
+fi
+# The cpio snapshot has the fstab from the last full image build.
+cp -a "$ROOT/recovery.fstab" "$WORK/ramdisk/system/etc/recovery.fstab"
+if [[ -f "$WORK/ramdisk/vendor/etc/vintf/manifest.xml" ]]; then
+    echo "vendor manifest.xml would also publish the health HAL" >&2
+    exit 1
+fi
+if ! grep -q '/misc' "$WORK/ramdisk/system/etc/recovery.fstab"; then
+    echo "recovery.fstab has no /misc line" >&2
+    exit 1
+fi
 # These are DT_NEEDED by recovery and libtar. They were linked from
 # out/system/lib64 but never installed into the recovery ramdisk, so the
 # binary exits before the UI. Copy the closure that readelf found missing.
